@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TalkSpace - Eventi</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .event-form-card {
+            background: #ffffff;
+            width: 100%;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            margin-bottom: 16px;
+        }
+        .event-card {
+            background: #ffffff;
+            width: 100%;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            margin-bottom: 16px;
+            text-align: left;
+        }
+        .event-title { font-size: 18px; font-weight: bold; color: #1877f2; margin-bottom: 5px; }
+        .event-info { font-size: 14px; color: #65676b; margin-bottom: 10px; }
+        .event-desc { font-size: 15px; color: #1c1e21; white-space: pre-wrap; }
+        .inline-group { display: flex; gap: 10px; margin-bottom: 12px; }
+        .inline-group input { flex: 1; padding: 10px; border: 1px solid #ccd0d5; border-radius: 6px; }
+    </style>
+</head>
+<body>
+
+    <!-- Barra in alto -->
+    <div class="nav-bar">
+        <div class="nav-logo">TalkSpace</div>
+        <span id="welcomeTitle">Caricamento...</span>
+        <button class="logout-btn" onclick="logout()">Esci</button>
+    </div>
+
+    <!-- Contenuto principale -->
+    <div class="main-layout">
+        
+        <!-- Menu di sinistra -->
+        <div class="sidebar-left">
+            <div class="sidebar-item" onclick="window.location.href='home.html'" style="cursor: pointer;">🏠 Feed dei post</div>
+            <div class="sidebar-item" onclick="window.location.href='amici.html'" style="cursor: pointer;">👥 Amici</div>
+            <div class="sidebar-item" onclick="window.location.href='messaggi.html'" style="cursor: pointer;">💬 Messaggi</div>
+            <div class="sidebar-item" style="color: #1877f2; font-weight: bold; cursor: pointer;" onclick="window.location.href='eventi.html'">📅 Eventi</div>
+            <div class="sidebar-item" onclick="window.location.href='impostazioni.html'" style="cursor: pointer;">⚙️ Impostazioni</div>
+        </div>
+
+        <!-- Colonna centrale -->
+        <div class="feed-container">
+            
+            <!-- Box crea evento -->
+            <div class="event-form-card">
+                <h3 style="margin-bottom: 12px; color: #65676b;">📅 Organizza un Evento</h3>
+                <form id="eventForm">
+                    <div class="input-group" style="margin-bottom: 12px;">
+                        <input type="text" id="eventTitle" placeholder="Titolo dell'evento (es. Compleanno di Fabio)" required style="width:100%; padding:10px; border:1px solid #ccd0d5; border-radius:6px;">
+                    </div>
+                    <div class="inline-group">
+                        <input type="date" id="eventDate" required>
+                        <input type="time" id="eventTime" required>
+                    </div>
+                    <textarea id="eventDesc" placeholder="Descrizione dell'evento (dove si fa, cosa portare...)" required></textarea>
+                    <button type="submit">Crea Evento</button>
+                </form>
+            </div>
+
+            <!-- Lista eventi disponibili -->
+            <div id="eventsList" style="width: 100%;">
+                <!-- Gli eventi compariranno qui -->
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const loggedInUser = JSON.parse(localStorage.getItem('user'));
+        
+        if (!loggedInUser) {
+            window.location.href = 'login.html';
+        } else {
+            document.getElementById('welcomeTitle').innerText = `👋 ${loggedInUser.username}`;
+        }
+
+        // Funzione per caricare gli eventi dal DB
+        async function caricaEventi() {
+            try {
+                const response = await fetch('/api/events');
+                const events = await response.json();
+                const eventsList = document.getElementById('eventsList');
+                eventsList.innerHTML = '';
+
+                events.forEach(ev => {
+                    const card = document.createElement('div');
+                    card.className = 'event-card';
+                    card.innerHTML = `
+                        <div class="event-title">🎉 ${ev.title}</div>
+                        <div class="event-info">📅 Il ${ev.date} alle ore ${ev.time} • Creato da @${ev.creator ? ev.creator.username : 'Anonimo'}</div>
+                        <div class="event-desc">${ev.description}</div>
+                    `;
+                    eventsList.appendChild(card);
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // Gestione invio modulo evento
+        document.getElementById('eventForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('eventTitle').value;
+            const date = document.getElementById('eventDate').value;
+            const time = document.getElementById('eventTime').value;
+            const description = document.getElementById('eventDesc').value;
+
+            try {
+                const response = await fetch('/api/events', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, date, time, description, creatorId: loggedInUser.id })
+                });
+
+                if (response.ok) {
+                    document.getElementById('eventForm').reset();
+                    caricaEventi(); 
+                }
+            } catch (err) {
+                alert('Impossibile creare l\'evento.');
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        }
+
+        caricaEventi();
+    </script>
+</body>
+</html>

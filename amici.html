@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wordly - Amici</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: #f0f2f5; color: #1c1e21; display: flex; flex-direction: column; min-height: 100vh; }
+        
+        /* 🔵 Barra Superiore Moderna */
+        .nav-bar { 
+            background: #ffffff; 
+            height: 60px; 
+            padding: 0 30px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 100;
+        }
+        .nav-logo { color: #1877f2; font-size: 26px; font-weight: 800; cursor: pointer; letter-spacing: -0.5px; }
+        #welcomeTitle { font-size: 16px; font-weight: 600; color: #4b4f56; background: #e4e6eb; padding: 8px 16px; border-radius: 20px; }
+        .logout-btn { background-color: #f0f2f5; color: #050505; border: none; padding: 10px 16px; font-size: 14px; font-weight: 600; border-radius: 8px; cursor: pointer; transition: background 0.2s; }
+        .logout-btn:hover { background-color: #e4e6eb; }
+
+        /* 📐 Layout Principale */
+        .main-layout { display: flex; justify-content: center; margin-top: 80px; padding: 0 20px; width: 100%; max-width: 1200px; margin-left: auto; margin-right: auto; gap: 30px; }
+        
+        /* 👈 Menu di Sinistra Elegante */
+        .sidebar-left { width: 280px; position: fixed; left: calc(50% - 600px); top: 80px; display: flex; flex-direction: column; gap: 4px; }
+        .sidebar-item { padding: 12px 16px; font-size: 15px; font-weight: 600; color: #050505; border-radius: 8px; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 12px; }
+        .sidebar-item:hover { background-color: #e4e6eb; }
+        .sidebar-item.active { color: #1877f2; background-color: rgba(24, 119, 242, 0.1); font-weight: bold; }
+
+        /* 👥 Contenitore Centrale Amici */
+        .feed-container { width: 550px; margin-left: 310px; display: flex; flex-direction: column; gap: 16px; padding-bottom: 40px; }
+        .section-title { font-size: 20px; font-weight: 700; color: #1c1e21; margin-bottom: 4px; }
+        
+        /* 📇 Cartoline Utente Moderne */
+        .user-card { 
+            background: white; 
+            padding: 16px; 
+            border-radius: 12px; 
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            transition: transform 0.2s;
+        }
+        .user-card:hover { transform: translateY(-2px); }
+        .user-info { font-weight: 700; font-size: 16px; color: #050505; display: flex; align-items: center; gap: 10px; }
+        
+        /* Foto profilo finta (Iniziale) */
+        .user-avatar { width: 40px; height: 40px; background-color: #e4e6eb; color: #1877f2; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 18px; }
+
+        /* Bottoni */
+        .add-btn { background-color: #1877f2; color: white; border: none; padding: 10px 16px; font-weight: 700; font-size: 14px; border-radius: 8px; cursor: pointer; transition: background 0.2s; }
+        .add-btn:hover { background-color: #166fe5; }
+        .sent-btn { background-color: #e4e6eb; color: #050505; border: none; padding: 10px 16px; font-weight: 700; font-size: 14px; border-radius: 8px; cursor: default; display: flex; align-items: center; gap: 6px; }
+    </style>
+</head>
+<body>
+
+    <!-- Barra in alto -->
+    <div class="nav-bar">
+        <div class="nav-logo" onclick="window.location.href='home.html'">Wordly</div>
+        <span id="welcomeTitle">Caricamento...</span>
+        <button class="logout-btn" onclick="logout()">Esci</button>
+    </div>
+
+    <!-- Contenuto principale -->
+    <div class="main-layout">
+        
+        <!-- Menu di sinistra -->
+        <div class="sidebar-left">
+            <div class="sidebar-item" onclick="window.location.href='home.html'">🏠 Feed dei post</div>
+            <div class="sidebar-item active" onclick="window.location.href='amici.html'">👥 Amici</div>
+            <div class="sidebar-item" onclick="window.location.href='messaggi.html'">💬 Messaggi</div>
+            <div class="sidebar-item" onclick="window.location.href='eventi.html'">📅 Eventi</div>
+            <div class="sidebar-item" onclick="window.location.href='impostazioni.html'">⚙️ Impostazioni</div>
+        </div>
+
+        <!-- Lista Utenti Centrale -->
+        <div class="feed-container">
+            <h2 class="section-title">Persone che potresti conoscere</h2>
+            <div id="usersList" style="display: flex; flex-direction: column; gap: 12px;">
+                <!-- Gli utenti registrati compariranno qui -->
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const loggedInUser = JSON.parse(localStorage.getItem('user'));
+        if (!loggedInUser) { 
+            window.location.href = 'login.html'; 
+        } else { 
+            document.getElementById('welcomeTitle').innerText = `👋 ${loggedInUser.username}`; 
+        }
+
+        async function caricaUtenti() {
+            try {
+                const response = await fetch('/api/users');
+                const users = await response.json();
+                const usersList = document.getElementById('usersList');
+                usersList.innerHTML = '';
+
+                if (users.length <= 1) {
+                    usersList.innerHTML = `<p style="color: #65676b; text-align: center; margin-top: 20px;">Non ci sono altri utenti registrati al momento.</p>`;
+                    return;
+                }
+
+                users.forEach(user => {
+                    if(user.username !== loggedInUser.username) {
+                        const card = document.createElement('div');
+                        card.className = 'user-card';
+                        
+                        // Estrae la prima lettera del nome per creare un'icona profilo finta carina
+                        const primaLettera = user.username.charAt(0).toUpperCase();
+
+                        card.innerHTML = `
+                            <div class="user-info">
+                                <div class="user-avatar">${primaLettera}</div>
+                                <span>@${user.username}</span>
+                            </div>
+                            <button class="add-btn" onclick="inviaAmicizia(this)">Aggiungi agli amici</button>
+                        `;
+                        usersList.appendChild(card);
+                    }
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // Funzione per cambiare il bottone quando viene cliccato
+        function inviaAmicizia(bottone) {
+            bottone.className = "sent-btn";
+            bottone.innerHTML = "✔️ Richiesta inviata";
+            bottone.onclick = null; // Disabilita altri clic
+        }
+
+        function logout() {
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        }
+
+        caricaUtenti();
+    </script>
+</body>
+</html>

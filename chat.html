@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Social Network</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; }
+        .chat-container { max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; flex-direction: column; height: 80vh; }
+        .chat-header { background: #007bff; color: white; padding: 15px; border-top-left-radius: 8px; border-top-right-radius: 8px; font-weight: bold; }
+        .messages-box { flex: 1; padding: 15px; overflow-y: auto; border-bottom: 1px solid #ddd; display: flex; flex-direction: column; gap: 10px; }
+        .message { padding: 10px; border-radius: 15px; max-width: 70%; word-wrap: break-word; }
+        .sent { background-color: #007bff; color: white; align-self: flex-end; }
+        .received { background-color: #e4e6eb; color: black; align-self: flex-start; }
+        .input-box { display: flex; padding: 10px; gap: 10px; }
+        .input-box input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 20px; outline: none; }
+        .input-box button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+        .input-box button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="chat-header">💬 Chat in Tempo Reale</div>
+    <div class="messages-box" id="messagesBox"></div>
+    <div class="input-box">
+        <input type="text" id="messageInput" placeholder="Scrivi un messaggio...">
+        <button id="sendBtn">Invia</button>
+    </div>
+</div>
+
+<!-- Collega automaticamente la libreria di Socket.io fornita dal server -->
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    // Connessione a Socket.io
+    const socket = io();
+
+    // Recupera in automatico l'utente che ha fatto il login
+const MIO_ID = localStorage.getItem('userId'); 
+
+// Per ora prendiamo un ID di prova dall'indirizzo della pagina, es: chat.html?amico=ID_AMICO
+const urlParams = new URLSearchParams(window.location.search);
+const ID_AMICO = urlParams.get('amico') || "ID_DI_UN_TUO_AMICO_SUL_DB"; 
+
+// Se non sei loggato, ti rimanda al login
+if (!MIO_ID) {
+    alert("Per favore, effettua prima il login!");
+    window.location.href = "/login.html"; // Sostituisci con il nome della tua pagina di login se diverso
+}
+
+    const messagesBox = document.getElementById('messagesBox');
+    const messageInput = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+
+    // 1. Comunica al server chi sei appena ti connetti
+    socket.emit('utente_connesso', MIO_ID);
+
+    // 2. Carica la cronologia dei vecchi messaggi dal database all'apertura
+    async function caricaCronologia() {
+        try {
+            const response = await fetch(`/api/messages/${MIO_ID}/${ID_AMICO}`);
+            const messaggi = await response.json();
+            
+            messaggi.forEach(msg => {
+                mostraMessaggioA Schermo(msg);
+            });
+            svuotaEInquadra();
+        } catch (error) {
+            console.error("Errore nel caricamento della cronologia:", error);
+        }
+    }
+
+    // 3. Funzione per stampare graficamente il messaggio a schermo
+    function mostraMessaggioASchermo(msg) {
+        const msgDiv = document.createElement('div');
+        msgDiv.classList.add('message');
+        
+        // Se il mittente (sender) sono io, mettilo a destra, altrimenti a sinistra
+        if (msg.sender === MIO_ID) {
+            msgDiv.classList.add('sent');
+        } else {
+            msgDiv.classList.add('received');
+        }
+        
+        msgDiv.textContent = msg.content;
+        messagesBox.appendChild(msgDiv);
+    }
+
+    function svuotaEInquadra() {
+        messagesBox.scrollTop = messagesBox.scrollHeight;
+    }
+
+    // 4. Invia il messaggio quando si clicca il pulsante
+    sendBtn.addEventListener('click', () => {
+        const testo = messageInput.value.trim();
+        if (!testo) return;
+
+        const datiMessaggio = {
+            sender: MIO_ID,
+            receiver: ID_AMICO,
+            content: testo
+        };
+
+        // Invia tramite socket in tempo reale
+        socket.emit('invia_messaggio', datiMessaggio);
+        messageInput.value = '';
+    });
+
+    // Invia anche premendo il tasto "Invio" sulla tastiera
+    messageInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendBtn.click();
+    });
+
+    // 5. Ascolta i messaggi in arrivo dal server in tempo reale
+    socket.on('ricevi_messaggio', (nuovoMsg) => {
+        // Mostra il messaggio solo se appartiene alla chat con l'amico corrente
+        if (nuovoMsg.sender === ID_AMICO) {
+            mostraMessaggioASchermo(nuovoMsg);
+            svuotaEInquadra();
+        }
+    });
+
+    // Ascolta la conferma del messaggio inviato da te per stamparlo
+    socket.on('messaggio_inviato', (nuovoMsg) => {
+        mostraMessaggioASchermo(nuovoMsg);
+        svuotaEInquadra();
+    });
+
+    // Avvia il caricamento dei messaggi all'avvio della pagina
+    caricaCronologia();
+</script>
+
+</body>
+</html>

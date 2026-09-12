@@ -1,0 +1,228 @@
+/* Reset generale */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+    background-color: #f0f2f5; /* Il classico grigio chiaro di sfondo di Facebook */
+    color: #1c1e21;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Barra superiore blu/bianca stile Facebook */
+.nav-bar {
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    height: 56px;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 16px;
+}
+
+.nav-logo {
+    color: #1877f2; /* Il blu ufficiale di Facebook */
+    font-size: 28px;
+    font-weight: bold;
+    letter-spacing: -1px;
+}
+
+#welcomeTitle {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.logout-btn {
+    background-color: #e4e6eb;
+    border: none;
+    color: #050505;
+    padding: 8px 12px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.logout-btn:hover {
+    background-color: #d8dadf;
+}
+
+/* Layout a tre colonne */
+.main-layout {
+    display: flex;
+    justify-content: center;
+    margin-top: 76px; /* Spazio per non finire sotto la barra superiore */
+    padding: 0 32px;
+    width: 100%;
+}
+
+/* Colonna sinistra per i link */
+.sidebar-left {
+    width: 280px;
+    position: fixed;
+    left: 32px;
+    display: none; /* Nascondi sui piccoli schermi */
+}
+
+@media (min-width: 900px) {
+    .sidebar-left { display: block; }
+}
+
+.sidebar-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.sidebar-item:hover {
+    background-color: #e4e6eb;
+}
+
+/* Contenitore centrale della Bacheca */
+.feed-container {
+    max-width: 500px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Box per creare un nuovo post (stile "Crea post" di FB) */
+.bacheca-container {
+    background: #ffffff;
+    width: 100%;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+.bacheca-container h3 {
+    font-size: 16px;
+    color: #65676b;
+    text-align: left;
+    margin-bottom: 12px;
+}
+
+textarea {
+    width: 100%;
+    height: 60px;
+    padding: 12px;
+    border: none;
+    background-color: #f0f2f5;
+    border-radius: 20px; /* Bordi molto arrotondati come i box moderni */
+    resize: none;
+    margin-bottom: 12px;
+    font-size: 15px;
+    outline: none;
+}
+
+button[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    background-color: #1877f2; /* Pulsante Blu */
+    border: none;
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+button[type="submit"]:hover {
+    background-color: #166fe5;
+}
+
+/* Schede dei Post pubblicati */
+.post-card {
+    background: #ffffff;
+    width: 100%;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    margin-bottom: 16px;
+    text-align: left;
+}
+
+.post-user {
+    font-weight: bold;
+    color: #050505;
+    margin-bottom: 8px;
+    font-size: 15px;
+}
+
+.post-content {
+    color: #050505;
+    font-size: 15px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+}
+
+/* Stili specifici per le finestre di Login/Registrazione */
+.register-container {
+    background: #ffffff;
+    max-width: 400px;
+    width: 100%;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    text-align: center;
+    margin: auto; /* Centra perfettamente nella pagina */
+}
+
+.page-center-layout {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f0f2f5;
+}
+
+.input-group {
+    text-align: left;
+    margin-bottom: 16px;
+}
+
+.input-group label {
+    display: block;
+    font-size: 13px;
+    color: #1c1e21;
+    margin-bottom: 4px;
+    font-weight: 600;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid #ccd0d5;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+}
+
+.input-group input:focus {
+    border-color: #1877f2;
+    box-shadow: 0 0 0 2px #e7f3ff;
+}
+
+#message {
+    margin-top: 12px;
+    font-weight: 600;
+    font-size: 14px;
+}

@@ -1,23 +1,24 @@
+require('dotenv').config(); // Carica le credenziali sicure dal file .env
 const express = require('express');
 const mongoose = require('mongoose');
 const User = require('./models/User'); 
 const Post = require('./models/Post'); 
 const Message = require('./models/Message'); 
 const Event = require('./models/Event');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { GoogleGenAI } = require('@google/generative-ai'); // Nuova sintassi ufficiale
 
 const app = express();
 app.use(express.json()); 
 app.use(express.static('public')); 
 
-// 🔑 INSERISCI QUI LA TUA CHIAVE API DI GOOGLE GEMINI (quella che finisce con ...rBWA)
-const GEMINI_API_KEY = "INCOLLA_QUI_LA_TUA_CHIAVE_SEGRETTA"; 
-const ai = new GoogleGenerativeAI(GEMINI_API_KEY);
+// Configurazione dell'IA di Google con la chiave dinamica
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "INCOLLA_QUI_LA_TUA_CHIAVE_DI_GEMINI" });
 
-const MONGO_URI = "mongodb+srv://work:Lorimiranda68@work.dllmz21.mongodb.net/social_network?retryWrites=true&w=majority&appName=work";
+// Connessione protetta a MongoDB Atlas usando il file .env
+const MONGO_URI = process.env.MONGO_URI;
 
 mongoose.connect(MONGO_URI)
-  .then(() => console.log('🟢 Connesso con successo a MongoDB!'))
+  .then(() => console.log('🟢 Connesso con successo a MongoDB Atlas online!'))
   .catch(err => console.error('🔴 Errore di connessione a MongoDB:', err));
 
 // ==========================================
@@ -47,6 +48,7 @@ app.get('/api/users', async (req, res) => {
         res.status(200).json(users);
     } catch (error) { res.status(500).json({ error: '❌ Errore utenti.' }); }
 });
+
 // ==========================================
 // 📝 POST E BACHECA CON INTEGRAZIONE VETTORIALE IA
 // ==========================================
@@ -94,6 +96,7 @@ app.get('/api/search-ai', async (req, res) => {
         res.status(200).json(risultatiIA);
     } catch (error) { res.status(500).json([]); }
 });
+
 app.post('/api/posts/:id/like', async (req, res) => {
     try {
         const { userId } = req.body;
@@ -115,6 +118,9 @@ app.post('/api/posts/:id/comment', async (req, res) => {
     } catch (error) { res.status(500).json({ error: '❌ Errore commento.' }); }
 });
 
+// ==========================================
+// 💬 MESSAGGI PRIVATI E 📅 EVENTI
+// ==========================================
 app.post('/api/messages', async (req, res) => {
     try {
         const { senderId, receiverId, content } = req.body;
@@ -148,6 +154,9 @@ app.get('/api/events', async (req, res) => {
     } catch (error) { res.status(500).json({ error: '❌ Errore eventi.' }); }
 });
 
+// ==========================================
+// ⚙️ IMPOSTAZIONI ACCOUNT
+// ==========================================
 app.put('/api/settings/profile', async (req, res) => {
     try {
         const { userId, username, avatar } = req.body;
@@ -168,6 +177,9 @@ app.put('/api/settings/password', async (req, res) => {
     } catch (error) { res.status(500).json({ error: '❌ Errore password.' }); }
 });
 
+// ==========================================
+// 🔌 SOCKET.IO (CHAT REAL-TIME)
+// ==========================================
 const http = require('http');
 const socketIo = require('socket.io');
 const server = http.createServer(app); 
@@ -183,7 +195,7 @@ io.on('connection', (socket) => {
       await nuovoMessaggio.save();
       const socketDestinatario = utentiOnline.get(receiver);
       if (socketDestinatario) io.to(socketDestinatario).emit('ricevi_messaggio', nuovoMessaggio);
-      socket.emit('messaggio_inviato', nuovoMessaggio);
+      socket.emit('messaggio_inviato', nuevoMessaggio);
     } catch (err) { console.error(err); }
   });
   socket.on('disconnect', () => {
@@ -191,5 +203,5 @@ io.on('connection', (socket) => {
   });
 });
 
-const PORT = 5000;
-server.listen(PORT, () => { console.log("🚀 Server Wordly attivo sulla porta 5000"); });
+const PORT = process.env.PORT || 5000; // Fondamentale per far scegliere la porta a Render!
+server.listen(PORT, () => { console.log(`🚀 Server Wordly attivo sulla porta ${PORT}`); });

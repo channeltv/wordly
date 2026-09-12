@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wordly - Home</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: #f0f2f5; color: #1c1e21; display: flex; flex-direction: column; min-height: 100vh; }
+        
+        /* 🔵 Barra Superiore Moderna */
+        .nav-bar { 
+            background: #ffffff; 
+            height: 60px; 
+            padding: 0 30px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 100;
+        }
+        .nav-logo { color: #1877f2; font-size: 26px; font-weight: 800; cursor: pointer; letter-spacing: -0.5px; }
+        
+        /* 🔍 Barra di Ricerca Intelligente con IA */
+        .search-container {
+            display: flex;
+            background: #f0f2f5;
+            padding: 6px 12px;
+            border-radius: 20px;
+            width: 300px;
+            align-items: center;
+            gap: 8px;
+        }
+        .search-input {
+            background: none;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            width: 100%;
+            color: #1c1e21;
+        }
+
+        #welcomeTitle { font-size: 16px; font-weight: 600; color: #4b4f56; background: #e4e6eb; padding: 8px 16px; border-radius: 20px; }
+        .logout-btn { background-color: #f0f2f5; color: #050505; border: none; padding: 10px 16px; font-size: 14px; font-weight: 600; border-radius: 8px; cursor: pointer; transition: background 0.2s; }
+        .logout-btn:hover { background-color: #e4e6eb; }
+
+        /* 📐 Layout Principale */
+        .main-layout { display: flex; justify-content: center; margin-top: 80px; padding: 0 20px; width: 100%; max-width: 1200px; margin-left: auto; margin-right: auto; gap: 30px; }
+        
+        /* 👈 Menu di Sinistra Elegante */
+        .sidebar-left { width: 280px; position: fixed; left: calc(50% - 600px); top: 80px; display: flex; flex-direction: column; gap: 4px; }
+        .sidebar-item { padding: 12px 16px; font-size: 15px; font-weight: 600; color: #050505; border-radius: 8px; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 12px; }
+        .sidebar-item:hover { background-color: #e4e6eb; }
+        .sidebar-item.active { color: #1877f2; background-color: rgba(24, 119, 242, 0.1); }
+
+        /* 📝 Feed Centrale */
+        .feed-container { width: 550px; margin-left: 310px; display: flex; flex-direction: column; gap: 16px; padding-bottom: 40px; }
+        
+        /* Box Crea Post */
+        .bacheca-container { background: #ffffff; padding: 16px; border-radius: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        #postForm { display: flex; flex-direction: column; gap: 12px; }
+        #postContent { width: 100%; height: 90px; border: none; background: #f0f2f5; border-radius: 8px; padding: 12px; font-size: 15px; outline: none; resize: none; transition: background 0.2s; }
+        #postContent:focus { background: #e4e6eb; }
+        #postForm button { background-color: #1877f2; color: white; border: none; padding: 10px; font-size: 15px; font-weight: 700; border-radius: 6px; cursor: pointer; transition: background 0.2s; }
+        #postForm button:hover { background-color: #166fe5; }
+
+        /* 📇 Cartoline dei Post */
+        .post-card { background: #ffffff; border-radius: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); padding: 16px; display: flex; flex-direction: column; }
+        .post-user { font-weight: 700; font-size: 15px; color: #050505; margin-bottom: 8px; }
+        .post-content { font-size: 15px; line-height: 1.5; color: #1c1e21; word-wrap: break-word; }
+        
+        /* Bottoni Like e Commenti */
+        .post-actions { display: flex; border-top: 1px solid #e4e6eb; border-bottom: 1px solid #e4e6eb; padding: 4px 0; margin-top: 12px; }
+        .action-btn { background: none; border: none; color: #65676b; font-size: 14px; font-weight: 600; padding: 8px; cursor: pointer; border-radius: 6px; flex: 1; text-align: center; transition: background 0.2s; }
+        .action-btn:hover { background-color: #f2f3f5; }
+        .action-btn.liked { color: #1877f2; }
+        
+        /* Box dei Commenti */
+        .comments-section { background-color: #f8f9fa; padding: 12px; border-radius: 0 0 12px 12px; margin-top: 8px; }
+        .comment-item { background: #f0f2f5; padding: 8px 12px; border-radius: 16px; margin-bottom: 6px; font-size: 14px; width: fit-content; max-width: 100%; }
+        .comment-user { font-weight: 700; color: #050505; margin-bottom: 2px; }
+        .comment-form { display: flex; gap: 8px; margin-top: 12px; }
+        .comment-input { flex: 1; padding: 8px 12px; border: 1px solid #ccd0d5; border-radius: 20px; outline: none; font-size: 14px; background: #f0f2f5; }
+        .comment-input:focus { background: #ffffff; border-color: #1877f2; }
+        .comment-submit { background-color: #1877f2; color: white; border: none; padding: 0 16px; border-radius: 20px; font-weight: 600; cursor: pointer; font-size: 13px; }
+    </style>
+</head>
+<body>
+
+    <!-- Barra in alto con inserita la barra di ricerca IA -->
+    <div class="nav-bar">
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <div class="nav-logo" onclick="window.location.href='home.html'">Wordly</div>
+            
+            <!-- 🔍 INPUT DI RICERCA GRAFICO -->
+            <div class="search-container">
+                <span>🔍</span>
+                <input type="text" class="search-input" id="searchAIInput" placeholder="Cerca significati con IA..." onkeyup="avviaRicercaIA(event)">
+            </div>
+        </div>
+        
+        <span id="welcomeTitle">Verifica profilo...</span>
+        <button class="logout-btn" onclick="logout()">Esci</button>
+    </div>
+
+    <!-- Contenuto principale -->
+    <div class="main-layout">
+        
+        <!-- Menu di sinistra -->
+        <div class="sidebar-left">
+            <div class="sidebar-item active" onclick="window.location.href='home.html'">🏠 Feed dei post</div>
+            <div class="sidebar-item" onclick="window.location.href='amici.html'">👥 Amici</div>
+            <div class="sidebar-item" onclick="window.location.href='messaggi.html'">💬 Messaggi</div>
+            <div class="sidebar-item" onclick="window.location.href='eventi.html'">📅 Eventi</div>
+            <div class="sidebar-item" onclick="window.location.href='impostazioni.html'">⚙️ Impostazioni</div>
+        </div>
+
+        <!-- Feed dei Post centrale -->
+        <div class="feed-container">
+            <div class="bacheca-container">
+                <form id="postForm">
+                    <textarea id="postContent" placeholder="A cosa stai pensando?" required></textarea>
+                    <button type="submit">Pubblica nel Feed</button>
+                </form>
+            </div>
+
+            <div id="postsList" style="width: 100%;">
+                <!-- I post compariranno qui -->
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const loggedInUser = JSON.parse(localStorage.getItem('user'));
+        
+        if (!loggedInUser) {
+            window.location.href = 'login.html';
+        } else {
+            document.getElementById('welcomeTitle').innerText = `👋 ${loggedInUser.username}`;
+        }
+
+        async function caricaPost() {
+            try {
+                const response = await fetch('/api/posts');
+                const posts = await response.json();
+                mostraPostAFormato(posts);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // Funzione grafica per stampare i post sullo schermo
+        function mostraPostAFormato(posts) {
+            const postsList = document.getElementById('postsList');
+            postsList.innerHTML = '';
+
+            if(posts.length === 0) {
+                postsList.innerHTML = `<p style="color: #65676b; text-align: center; margin-top: 20px; font-weight: 600;">Nessun post trovato.</p>`;
+                return;
+            }
+
+            posts.forEach(post => {
+                const card = document.createElement('div');
+                card.className = 'post-card';
+                
+                const haMessoLike = post.likes ? post.likes.includes(loggedInUser.id) : false;
+                const numeroLike = post.likes ? post.likes.length : 0;
+
+                let commentiHtml = '';
+                if (post.comments && post.comments.length > 0) {
+                    post.comments.forEach(comm => {
+                        commentiHtml += `
+                            <div class="comment-item">
+                                <div class="comment-user">@${comm.username || 'Utente'}</div>
+                                <div>${comm.content}</div>
+                            </div>
+                        `;
+                    });
+                }
+
+                card.innerHTML = `
+                    <div class="post-user">@${post.user ? post.user.username : 'Utente Anonimo'}</div>
+                    <div class="post-content">${post.content}</div>
+                    
+                    <div style="font-size: 13px; color: #65676b; margin-top: 10px; font-weight: 500;">
+                         👍 <span id="like-count-${post._id}">${numeroLike}</span> ${numeroLike === 1 ? 'persona' : 'persone'}
+                    </div>
+                    
+                    <div class="post-actions">
+                        <button class="action-btn ${haMessoLike ? 'liked' : ''}" id="like-btn-${post._id}" onclick="gestisciLike('${post._id}')">
+                            👍 Mi piace
+                        </button>

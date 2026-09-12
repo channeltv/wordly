@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wordly - Registrati</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { display: flex; height: 100vh; background-color: #f0f2f5; overflow: hidden; }
+        
+        /* Schermo Sdoppiato - Lato Sinistro (Design e Brand) */
+        .split-left {
+            width: 45%;
+            background: linear-gradient(135deg, #1877f2 0%, #0056b3 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            padding: 40px;
+            position: relative;
+        }
+        .split-left::before {
+            content: "";
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            top: -50px;
+            left: -50px;
+        }
+        .brand-title { font-size: 48px; font-weight: 800; letter-spacing: -1px; margin-bottom: 10px; z-index: 1; }
+        .brand-subtitle { font-size: 18px; opacity: 0.9; text-align: center; max-width: 320px; line-height: 1.5; z-index: 1; }
+
+        /* Schermo Sdoppiato - Lato Destro (Modulo di Registrazione) */
+        .split-right {
+            width: 55%;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 0 10%;
+        }
+        .form-header { margin-bottom: 32px; }
+        .form-header h2 { font-size: 28px; color: #1c1e21; margin-bottom: 8px; font-weight: 700; }
+        .form-header p { color: #65676b; font-size: 15px; }
+
+        /* Gruppi di Input Moderni */
+        .input-group { margin-bottom: 20px; display: flex; flex-direction: column; gap: 6px; }
+        .input-group label { font-size: 13px; font-weight: 600; color: #65676b; text-transform: uppercase; letter-spacing: 0.5px; }
+        .input-group input {
+            padding: 14px 16px;
+            border: 1px solid #ccd0d5;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.2s ease;
+            background-color: #f9f9f9;
+        }
+        .input-group input:focus {
+            border-color: #1877f2;
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(24, 119, 242, 0.15);
+        }
+
+        /* Pulsante di Registrazione Verde */
+        button[type="submit"] {
+            background-color: #00a400;
+            color: white;
+            border: none;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.2s;
+        }
+        button[type="submit"]:hover { background-color: #008f00; }
+        
+        #message { margin-top: 15px; font-size: 14px; font-weight: 600; text-align: center; min-height: 20px; }
+        .footer-link { margin-top: 24px; text-align: center; color: #65676b; font-size: 14px; }
+        .footer-link a { color: #1877f2; text-decoration: none; font-weight: 700; }
+        .footer-link a:hover { text-decoration: underline; }
+
+        /* Selettore Lingua Manuale in basso */
+        .lang-selector { position: absolute; bottom: 20px; right: 20px; font-size: 13px; color: #65676b; }
+        .lang-selector span { cursor: pointer; margin-left: 8px; font-weight: 600; }
+        .lang-selector span:hover { color: #1877f2; text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <!-- LATO SINISTRO: BRAND -->
+    <div class="split-left">
+        <div class="brand-title">Wordly</div>
+        <div class="brand-subtitle" id="lblBrandSubtitle">Connettiti con i tuoi amici, scambia messaggi e organizza eventi in libertà.</div>
+    </div>
+
+    <!-- LATO DESTRO: FORM -->
+    <div class="split-right">
+        <div class="form-header">
+            <h2 id="lblFormTitle">Crea un nuovo account</h2>
+            <p id="lblFormSubtitle">È facile, veloce e gratuito. Entra subito nella community!</p>
+        </div>
+        
+        <form id="registerForm">
+            <div class="input-group">
+                <label for="username" id="lblUsername">Nome Utente</label>
+                <input type="text" id="username" required placeholder="...">
+            </div>
+
+            <div class="input-group">
+                <label for="email" id="lblEmail">Indirizzo Email</label>
+                <input type="email" id="email" required placeholder="esempio@email.com">
+            </div>
+            
+            <div class="input-group">
+                <label for="password" id="lblPassword">Password</label>
+                <input type="password" id="password" required placeholder="...">
+            </div>
+            
+            <button type="submit" id="btnSubmit">Iscriviti a TalkSpace</button>
+        </form>
+        
+        <div id="message"></div>
+        
+        <p class="footer-link"><span id="lblHaveAccount">Hai già un account?</span> <a href="login.html" id="lblLoginLink">Accedi qui</a></p>
+    </div>
+
+    <!-- Selettore di Lingua Manuale -->
+    <div class="lang-selector">
+        🌐 <span onclick="cambiaLingua('it')">Italiano</span> | <span onclick="cambiaLingua('en')">English</span> | <span onclick="cambiaLingua('es')">Español</span> | <span onclick="cambiaLingua('sq')">Shqip</span>
+    </div>
+
+    <script>
+        // 🌍 DIZIONARIO TRADUZIONI REGISTRAZIONE
+        const dizionario = {
+            it: {
+                brandSubtitle: "Connettiti con i tuoi amici, scambia messaggi e organizza eventi in libertà.",
+                formTitle: "Crea un nuovo account",
+                formSubtitle: "È facile, veloce e gratuito. Entra subito nella community!",
+                username: "Nome Utente",
+                email: "Indirizzo Email",
+                password: "Password",
+                btnSubmit: "Iscriviti a Wordly",
+                haveAccount: "Hai già un account?",
+                loginLink: "Accedi qui"
+            },
+            en: {
+                brandSubtitle: "Connect with your friends, exchange messages and organize events freely.",
+                formTitle: "Create a new account",
+                formSubtitle: "It's easy, fast and free. Join the community now!",
+                username: "Username",
+                email: "Email Address",
+                password: "Password",
+                btnSubmit: "Sign Up for Wordly",
+                haveAccount: "Already have an account?",
+                loginLink: "Log in here"
+            },
+            es: {
+                brandSubtitle: "Conéctate con tus amigos, intercambia mensajes y organiza eventos libremente.",
+                formTitle: "Crea una nueva cuenta",
+                formSubtitle: "Es fácil, rápido y gratuito. ¡Únete a la comunidad ahora!",
+                username: "Nombre de Usuario",
+                email: "Correo Electrónico",
+                password: "Contraseña",
+                btnSubmit: "Registrarse en Wordly",
+                haveAccount: "¿Ya tienes una cuenta?",
+                loginLink: "Inicia sesión aquí"
+            },
+            sq: {
+                brandSubtitle: "Lidhu me miqtë tuaj, shkëmbe mesazhe dhe organizo evente lirisht.",
+                formTitle: "Krijoni një llogari të re",
+                formSubtitle: "Është e lehtë, e shpejtë dhe falas. Bashkohuni me komunitetin tani!",
+                username: "Emri i Përdoruesit",
+                email: "Adresa Email",
+                password: "Fjalëkalimi",
+                btnSubmit: "Regjistrohu në Wordly",
+                haveAccount: "Keni një llogari?",
+                loginLink: "Hyni këtu"
+            }
+        };
+
+        function applicaTraduzione(lingua) {
+            const testi = dizionario[lingua] || dizionario['it'];
+            
+            document.getElementById('lblBrandSubtitle').innerText = testi.brandSubtitle;
+            document.getElementById('lblFormTitle').innerText = testi.formTitle;
+            document.getElementById('lblFormSubtitle').innerText = testi.formSubtitle;
+            document.getElementById('lblUsername').innerText = testi.username;
+            document.getElementById('lblEmail').innerText = testi.email;
+            document.getElementById('lblPassword').innerText = testi.password;
+            document.getElementById('btnSubmit').innerText = testi.btnSubmit;
+            document.getElementById('lblHaveAccount').innerText = testi.haveAccount;
+            document.getElementById('lblLoginLink').innerText = testi.loginLink;
+            
+            localStorage.setItem('linguaScelta', lingua);
+        }
+
+        const linguaBrowser = navigator.language.slice(0, 2);
+        const linguaSalvata = localStorage.getItem('linguaScelta');
+        
+        const linguaFinale = linguaSalvata || (dizionario[linguaBrowser] ? linguaBrowser : 'it');
+        applicaTraduzione(linguaFinale);
+
+        function cambiaLingua(lingua) {
+            applicaTraduzione(lingua);
+        }
+
+        // Modulo originale invio dati al server MongoDB Atlas
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const messageDiv = document.getElementById('message');
+
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password })
+                });
