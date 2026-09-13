@@ -4,25 +4,27 @@
     <meta charset="UTF-8">
     <title>Wordly - Registrazione</title>
     <style>
-        body { font-family: sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); width: 300px; }
-        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        button { width: 100%; padding: 10px; background: #0084ff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
-        button:hover { background: #006bce; }
-        .link { text-align: center; margin-top: 15px; }
-        .link a { color: #0084ff; text-decoration: none; }
+        body { font-family: sans-serif; background-color: #1877f2; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); width: 350px; text-align: center; }
+        h2 { color: #1c1e21; margin-bottom: 20px; font-size: 24px; }
+        input { width: 100%; padding: 14px; margin: 8px 0; border: 1px solid #ccd0d5; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
+        input:focus { border-color: #1877f2; outline: none; }
+        button { width: 100%; padding: 12px; background: #1877f2; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 17px; font-weight: bold; margin-top: 10px; }
+        button:hover { background: #166fe5; }
+        .link { text-align: center; margin-top: 20px; border-top: 1px solid #dadde1; padding-top: 20px; }
+        .link a { color: #1877f2; text-decoration: none; font-size: 15px; }
+        .link a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>Crea Account</h2>
+        <h2>Crea un account Wordly</h2>
         <form id="registerForm">
             <input type="text" id="username" placeholder="Nome utente" required>
-            <input type="email" id="email" placeholder="Email" required>
-            <input type="password" id="password" placeholder="Password" required>
+            <input type="email" id="email" placeholder="Indirizzo e-mail" required>
+            <input type="password" id="password" placeholder="Nuova password" required>
             <button type="submit">Iscriviti</button>
         </form>
-        <div id="message" style="margin-top:10px; color:red;"></div>
         <div class="link"><a href="/login.html">Hai già un account? Accedi</a></div>
     </div>
 
@@ -32,7 +34,6 @@
             const username = document.getElementById("username").value.trim();
             const email = document.getElementById("email").value.trim();
             const password = document.getElementById("password").value;
-            const messageDiv = document.getElementById("message");
 
             try {
                 const response = await fetch("/api/register", {
@@ -41,12 +42,15 @@
                     body: JSON.stringify({ username, email, password })
                 });
                 const data = await response.json();
-                alert(data.message || data.error);
+                
                 if (response.ok) {
+                    alert("Registrazione completata con successo!");
                     window.location.href = "/login.html";
+                } else {
+                    alert(data.error || "Errore durante la registrazione");
                 }
             } catch (err) {
-                alert("Errore di rete: " + err.message);
+                alert("Errore di rete: impossibile connettersi al server.");
             }
         });
     </script>
