@@ -71,10 +71,10 @@
 
                 if (response.ok) {
                     msg.style.color = '#28a745';
-                    msg.innerText = 'Registrazione completata! Controlla la tua email.';
+                    msg.innerText = 'Registrazione completata! Reindirizzamento...';
                     setTimeout(() => {
                         window.location.href = 'login.html';
-                    }, 2000);
+                    }, 1500);
                 } else {
                     msg.style.color = '#dc3545';
                     msg.innerText = data.error || 'Errore durante la registrazione.';
