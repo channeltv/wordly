@@ -124,7 +124,7 @@ app.post('/api/messages', async (req, res) => {
 app.get('/api/messages/:user1/:user2', async (req, res) => {
     try {
         const history = await Message.find({
-            \$or: [
+            $or: [
                 { sender: req.params.user1, receiver: req.params.user2 },
                 { sender: req.params.user2, receiver: req.params.user1 }
             ]
