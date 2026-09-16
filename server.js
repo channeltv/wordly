@@ -217,4 +217,6 @@ app.put('/api/settings/profile', async (req, res) => {
 
 
 const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => console.log(`Server acceso sulla porta ${PORT}`));
+server.listen(PORT, () => {
+    console.log(`🚀 Server NexyTalk attivo sulla porta ${PORT}`);
+});
