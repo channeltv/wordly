@@ -10,8 +10,6 @@ const { GoogleGenAI } = require('@google/generative-ai');
 
 const app = express();
 app.use(express.json()); 
-
-// CORRETTO: Dice al server di leggere i file HTML direttamente dalla cartella principale
 app.use(express.static(__dirname)); 
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "INCOLLA_QUI_LA_TUA_CHIAVE_DI_GEMINI" });
@@ -36,7 +34,6 @@ async function inviaEmailConferma(emailUtente, nomeUtente) {
     try { await transporter.sendMail(mailOptions); console.log('🟢 Email inviata!'); } catch (e) { console.error('🔴 Errore mail:', e); }
 }
 
-// CORRETTO: Rotta unica di login super intelligente (accetta sia Email che Username)
 app.post('/api/login', async (req, res) => {
   try {
     const { email, username, password } = req.body;
