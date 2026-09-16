@@ -67,7 +67,7 @@ app.post('/api/login', async (req, res) => {
 
     // Cerca l'utente confrontando sia il campo email che username
     const user = await User.findOne({
-        \$or: [{ email: credenziale }, { username: credenziale }]
+        $or: [{ email: credenziale }, { username: credenziale }]
     });
 
     if (!user || user.password !== password) {
