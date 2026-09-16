@@ -34,13 +34,13 @@ async function inviaEmailConferma(emailUtente, nomeUtente) {
     try { await transporter.sendMail(mailOptions); console.log('🟢 Email inviata!'); } catch (e) { console.error('🔴 Errore mail:', e); }
 }
 
-app.post('/api/register', async (req, res) => {
+app.post('/api/login', async (req, res) => {
   try {
-    const { username, email, password } = req.body;
-    const newUser = new User({ username, email, password });
-    await newUser.save();
-    await inviaEmailConferma(email, username);
-    res.status(201).json({ message: '🎉 Registrato!', user: newUser });
+    const { email, username, password } = req.body;
+    // Cerca nel database sia per email che per username per non sbagliare mai!
+    const user = await User.findOne({ $or: [{ email: email || username }, { username: username || email }] });
+    if (!user || user.password !== password) return res.status(400).json({ error: 'Credenziali errate.' });
+    res.status(200).json({ message: 'Ok!', user: { id: user._id, username: user.username, email: user.email } });
   } catch (error) { res.status(500).json({ error: '❌ Errore.' }); }
 });
 
