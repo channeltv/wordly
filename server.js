@@ -10,7 +10,9 @@ const { GoogleGenAI } = require('@google/generative-ai');
 
 const app = express();
 app.use(express.json()); 
-app.use(express.static('public')); 
+
+// CORRETTO: Dice al server di leggere i file HTML direttamente dalla cartella principale
+app.use(express.static(__dirname)); 
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "INCOLLA_QUI_LA_TUA_CHIAVE_DI_GEMINI" });
 mongoose.connect(process.env.MONGO_URI).then(() => console.log('🟢 DB Online!')).catch(err => console.error('🔴 Errore:', err));
@@ -34,22 +36,30 @@ async function inviaEmailConferma(emailUtente, nomeUtente) {
     try { await transporter.sendMail(mailOptions); console.log('🟢 Email inviata!'); } catch (e) { console.error('🔴 Errore mail:', e); }
 }
 
+// CORRETTO: Rotta unica di login super intelligente (accetta sia Email che Username)
 app.post('/api/login', async (req, res) => {
   try {
     const { email, username, password } = req.body;
-    // Cerca nel database sia per email che per username per non sbagliare mai!
-    const user = await User.findOne({ $or: [{ email: email || username }, { username: username || email }] });
+    const inputIdentificativo = email || username;
+
+    if (!inputIdentificativo || !password) {
+      return res.status(400).json({ error: 'Inserisci tutti i campi.' });
+    }
+
+    const user = await User.findOne({ \$or: [{ email: inputIdentificativo }, { username: inputIdentificativo }] });
     if (!user || user.password !== password) return res.status(400).json({ error: 'Credenziali errate.' });
+    
     res.status(200).json({ message: 'Ok!', user: { id: user._id, username: user.username, email: user.email } });
-  } catch (error) { res.status(500).json({ error: '❌ Errore.' }); }
+  } catch (error) { res.status(500).json({ error: '❌ Errore interno.' }); }
 });
 
-app.post('/api/login', async (req, res) => {
+app.post('/api/register', async (req, res) => {
   try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
-    if (!user || user.password !== password) return res.status(400).json({ error: 'Errati.' });
-    res.status(200).json({ message: 'Ok!', user: { id: user._id, username: user.username, email: user.email } });
+    const { username, email, password } = req.body;
+    const newUser = new User({ username, email, password });
+    await newUser.save();
+    await inviaEmailConferma(email, username);
+    res.status(201).json({ message: '🎉 Registrato!', user: newUser });
   } catch (error) { res.status(500).json({ error: '❌ Errore.' }); }
 });
 
@@ -77,9 +87,9 @@ app.get('/api/search-ai', async (req, res) => {
         const { query } = req.query; if (!query) return res.status(400).json([]);
         const r = await ai.models.embedContent({ model: "text-embedding-004", content: { text: query } });
         const resIA = await Post.aggregate([
-            { $vectorSearch: { index: "vector_index", path: "plot_embedding", queryVector: r.embedding.values, numCandidates: 100, limit: 10 } },
-            { $lookup: { from: "users", localField: "user", foreignField: "_id", as: "user" } }, { $unwind: "$user" },
-            { $project: { content: 1, likes: 1, comments: 1, createdAt: 1, "user.username": 1 } }
+            { \$vectorSearch: { index: "vector_index", path: "plot_embedding", queryVector: r.embedding.values, numCandidates: 100, limit: 10 } },
+            { \$lookup: { from: "users", localField: "user", foreignField: "_id", as: "user" } }, { unwind: "user" },
+            { \$project: { content: 1, likes: 1, comments: 1, createdAt: 1, "user.username": 1 } }
         ]);
         res.status(200).json(resIA);
     } catch (error) { res.status(500).json([]); }
@@ -111,7 +121,7 @@ app.post('/api/messages', async (req, res) => {
 });
 
 app.get('/api/messages/:user1/:user2', async (req, res) => {
-    try { res.status(200).json(await Message.find({ $or: [{ sender: req.params.user1, receiver: req.params.user2 }, { sender: req.params.user2, receiver: req.params.user1 }] }).sort({ createdAt: 1 })); } catch (error) { res.status(500).json({ error: '❌ Errore.' }); }
+    try { res.status(200).json(await Message.find({ \$or: [{ sender: req.params.user1, receiver: req.params.user2 }, { sender: req.params.user2, receiver: req.params.user1 }] }).sort({ createdAt: 1 })); } catch (error) { res.status(500).json({ error: '❌ Errore.' }); }
 });
 
 app.post('/api/events', async (req, res) => {
@@ -129,7 +139,7 @@ app.get('/api/events', async (req, res) => {
 app.put('/api/settings/profile', async (req, res) => {
     try {
         const { userId, username, avatar } = req.body;
-        if (username && await User.findOne({ username, _id: { $ne: userId } })) return res.status(400).json({ error: '❌ Occupato.' });
+        if (username && await User.findOne({ username, _id: { \$ne: userId } })) return res.status(400).json({ error: '❌ Occupato.' });
         await User.findByIdAndUpdate(userId, { username, avatar }); res.status(200).json({ message: '✅ Ok!' });
     } catch (error) { res.status(500).json({ error: '❌ Errore.' }); }
 });
