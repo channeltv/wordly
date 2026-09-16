@@ -2,57 +2,88 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>Wordly - Registrazione</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexyTalk - Registrati</title>
     <style>
-        body { font-family: sans-serif; background-color: #1877f2; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); width: 350px; text-align: center; }
-        h2 { color: #1c1e21; margin-bottom: 20px; font-size: 24px; }
-        input { width: 100%; padding: 14px; margin: 8px 0; border: 1px solid #ccd0d5; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
-        input:focus { border-color: #1877f2; outline: none; }
-        button { width: 100%; padding: 12px; background: #1877f2; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 17px; font-weight: bold; margin-top: 10px; }
-        button:hover { background: #166fe5; }
-        .link { text-align: center; margin-top: 20px; border-top: 1px solid #dadde1; padding-top: 20px; }
-        .link a { color: #1877f2; text-decoration: none; font-size: 15px; }
-        .link a:hover { text-decoration: underline; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { display: flex; height: 100vh; background-color: #1877f2; justify-content: center; align-items: center; overflow: hidden; }
+        .register-container { background: #ffffff; padding: 40px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); width: 100%; max-width: 450px; text-align: center; }
+        .register-container h2 { font-size: 28px; color: #1c1e21; margin-bottom: 24px; font-weight: 700; }
+        .input-group { margin-bottom: 20px; text-align: left; display: flex; flex-direction: column; gap: 6px; }
+        .input-group input { padding: 14px 16px; border: 1px solid #ccd0d5; border-radius: 8px; font-size: 15px; outline: none; background-color: #f9f9f9; width: 100%; }
+        .input-group input:focus { border-color: #1877f2; background-color: #ffffff; }
+        button { background-color: #1877f2; color: white; border: none; padding: 14px; font-size: 16px; font-weight: 700; border-radius: 8px; cursor: pointer; margin-top: 10px; width: 100%; }
+        button:hover { background-color: #166fe5; }
+        #message { margin-top: 15px; font-size: 14px; font-weight: 600; }
+        .footer-link { margin-top: 24px; color: #65676b; font-size: 14px; }
+        .footer-link a { color: #1877f2; text-decoration: none; font-weight: 700; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Crea un account Wordly</h2>
+
+    <div class="register-container">
+        <h2>Crea un account NexyTalk</h2>
+        
         <form id="registerForm">
-            <input type="text" id="username" placeholder="Nome utente" required>
-            <input type="email" id="email" placeholder="Indirizzo e-mail" required>
-            <input type="password" id="password" placeholder="Nuova password" required>
-            <button type="submit">Iscriviti</button>
+            <div class="input-group">
+                <input type="text" id="regUsername" required placeholder="Nome utente (es. master2026)">
+            </div>
+            
+            <div class="input-group">
+                <input type="email" id="regEmail" required placeholder="Indirizzo e-mail">
+            </div>
+            
+            <div class="input-group">
+                <input type="password" id="regPassword" required placeholder="Password">
+            </div>
+            
+            <button type="button" onclick="inviaRegistrazione()">Iscriviti</button>
         </form>
-        <div class="link"><a href="/login.html">Hai già un account? Accedi</a></div>
+        
+        <div id="message"></div>
+        <p class="footer-link">Hai già un account? <a href="login.html">Accedi</a></p>
     </div>
 
     <script>
-        document.getElementById("registerForm").addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const username = document.getElementById("username").value.trim();
-            const email = document.getElementById("email").value.trim();
-            const password = document.getElementById("password").value;
+        async function inviaRegistrazione() {
+            const username = document.getElementById('regUsername').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            const msg = document.getElementById('message');
+
+            if(!username || !email || !password) {
+                msg.style.color = '#dc3545';
+                msg.innerText = 'Inserisci tutti i campi.';
+                return;
+            }
+
+            msg.style.color = '#1877f2';
+            msg.innerText = 'Creazione account in corso...';
 
             try {
-                const response = await fetch("/api/register", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ username, email, password })
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: username, email: email, password: password })
                 });
+
                 const data = await response.json();
-                
+
                 if (response.ok) {
-                    alert("Registrazione completata con successo!");
-                    window.location.href = "/login.html";
+                    msg.style.color = '#28a745';
+                    msg.innerText = 'Registrazione completata! Controlla la tua email.';
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 2000);
                 } else {
-                    alert(data.error || "Errore durante la registrazione");
+                    msg.style.color = '#dc3545';
+                    msg.innerText = data.error || 'Errore durante la registrazione.';
                 }
-            } catch (err) {
-                alert("Errore di rete: impossibile connettersi al server.");
+            } catch (error) {
+                msg.style.color = '#dc3545';
+                msg.innerText = 'Errore di connessione al server.';
             }
-        });
+        }
     </script>
 </body>
 </html>
