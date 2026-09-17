@@ -5,96 +5,223 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NexyTalk - Accedi</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { display: flex; height: 100vh; background-color: #f0f2f5; overflow: hidden; }
-        .split-left { width: 45%; background: linear-gradient(135deg, #1877f2 0%, #0056b3 100%); display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; padding: 40px; }
-        .brand-title { font-size: 48px; font-weight: 800; margin-bottom: 10px; }
-        .brand-subtitle { font-size: 18px; text-align: center; max-width: 320px; opacity: 0.9; }
-        .split-right { width: 55%; background: #ffffff; display: flex; flex-direction: column; justify-content: center; padding: 0 10%; }
+        
+        /* Schermo Sdoppiato - Lato Sinistro (Design e Brand) */
+        .split-left {
+            width: 45%;
+            background: linear-gradient(135deg, #1877f2 0%, #0056b3 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            padding: 40px;
+            position: relative;
+        }
+        .split-left::before {
+            content: "";
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            top: -50px;
+            left: -50px;
+        }
+        .brand-title { font-size: 48px; font-weight: 800; letter-spacing: -1px; margin-bottom: 10px; z-index: 1; }
+        .brand-subtitle { font-size: 18px; opacity: 0.9; text-align: center; max-width: 320px; line-height: 1.5; z-index: 1; }
+
+        /* Schermo Sdoppiato - Lato Destro (Modulo di Accesso) */
+        .split-right {
+            width: 55%;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 0 10%;
+        }
         .form-header { margin-bottom: 32px; }
         .form-header h2 { font-size: 28px; color: #1c1e21; margin-bottom: 8px; font-weight: 700; }
         .form-header p { color: #65676b; font-size: 15px; }
+
+        /* Gruppi di Input Moderni */
         .input-group { margin-bottom: 20px; display: flex; flex-direction: column; gap: 6px; }
-        .input-group label { font-size: 13px; font-weight: 600; color: #65676b; }
-        .input-group input { padding: 14px 16px; border: 1px solid #ccd0d5; border-radius: 8px; font-size: 15px; outline: none; background-color: #f9f9f9; width: 100%; }
-        button[type="button"] { background-color: #1877f2; color: white; border: none; padding: 14px; font-size: 16px; font-weight: 700; border-radius: 8px; cursor: pointer; margin-top: 10px; width: 100%; }
-        button[type="button"]:hover { background-color: #166fe5; }
-        #message { margin-top: 15px; font-size: 14px; font-weight: 600; text-align: center; }
+        .input-group label { font-size: 13px; font-weight: 600; color: #65676b; text-transform: uppercase; letter-spacing: 0.5px; }
+        .input-group input {
+            padding: 14px 16px;
+            border: 1px solid #ccd0d5;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.2s ease;
+            background-color: #f9f9f9;
+        }
+        .input-group input:focus {
+            border-color: #1877f2;
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(24, 119, 242, 0.15);
+        }
+
+        /* Pulsante di Accesso */
+        button[type="submit"] {
+            background-color: #1877f2;
+            color: white;
+            border: none;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.2s;
+        }
+        button[type="submit"]:hover { background-color: #166fe5; }
+        
+        #message { margin-top: 15px; font-size: 14px; font-weight: 600; text-align: center; min-height: 20px; }
         .footer-link { margin-top: 24px; text-align: center; color: #65676b; font-size: 14px; }
         .footer-link a { color: #1877f2; text-decoration: none; font-weight: 700; }
+        .footer-link a:hover { text-decoration: underline; }
+
+        /* Selettore Lingua Manuale in basso */
+        .lang-selector { position: absolute; bottom: 20px; right: 20px; font-size: 13px; color: #65676b; }
+        .lang-selector span { cursor: pointer; margin-left: 8px; font-weight: 600; }
+        .lang-selector span:hover { color: #1877f2; text-decoration: underline; }
     </style>
 </head>
 <body>
 
+    <!-- LATO SINISTRO: BRAND -->
     <div class="split-left">
-        <div class="brand-title">💬 NexyTalk</div>
-        <div class="brand-subtitle">Connettiti con i tuoi amici, scambia messaggi e organizza eventi in libertà.</div>
+        <div class="brand-title">Wordly</div>
+        <div class="brand-subtitle" id="lblBrandSubtitle">Connettiti con i tuoi amici, scambia messaggi e organizes eventi in libertà.</div>
     </div>
 
+    <!-- LATO DESTRO: FORM -->
     <div class="split-right">
         <div class="form-header">
-            <h2>Bentornato!</h2>
-            <p>Inserisci le tue credenziali per accedere alla community.</p>
+            <h2 id="lblFormTitle">Bentornato!</h2>
+            <p id="lblFormSubtitle">Inserisci le tue credenziali per accedere alla community.</p>
         </div>
         
-        <form id="myForm">
+        <form id="loginForm">
             <div class="input-group">
-                <label>Indirizzo Email o Username</label>
-                <input type="text" id="myEmail" required placeholder="esempio@email.com o username">
+                <label for="email" id="lblEmail">Indirizzo Email</label>
+                <input type="email" id="email" required placeholder="esempio@email.com">
             </div>
             
             <div class="input-group">
-                <label>Password</label>
-                <input type="password" id="myPassword" required placeholder="••••••••">
+                <label for="password" id="lblPassword">Password</label>
+                <input type="password" id="password" required placeholder="••••••••">
             </div>
             
-            <button type="button" onclick="inviaLogin()">Accedi all'Account</button>
+            <button type="submit" id="btnSubmit">Accedi all'Account</button>
         </form>
         
         <div id="message"></div>
-        <p class="footer-link">Non hai ancora un account? <a href="index.html">Registrati adesso</a></p>
+        
+        <p class="footer-link"><span id="lblNoAccount">Non hai ancora un account?</span> <a href="index.html" id="lblRegisterLink">Registrati adesso</a></p>
+    </div>
+
+    <!-- Selettore di Lingua Manuale con Albanese -->
+    <div class="lang-selector">
+        🌐 <span onclick="cambiaLingua('it')">Italiano</span> | <span onclick="cambiaLingua('en')">English</span> | <span onclick="cambiaLingua('es')">Español</span> | <span onclick="cambiaLingua('sq')">Shqip</span>
     </div>
 
     <script>
-        async function inviaLogin() {
-            const email = document.getElementById('myEmail').value;
-            const password = document.getElementById('myPassword').value;
-            const msg = document.getElementById('message');
-
-            if(!email || !password) {
-                msg.style.color = '#dc3545';
-                msg.innerText = 'Inserisci tutti i campi.';
-                return;
+        // 🌍 DIZIONARIO TRADUZIONI MULTILINGUA
+        const dizionario = {
+            it: {
+                brandSubtitle: "Connettiti con i tuoi amici, scambia messaggi e organizza eventi in libertà.",
+                formTitle: "Bentornato!",
+                formSubtitle: "Inserisci le tue credenziali per accedere alla community.",
+                email: "Indirizzo Email",
+                password: "Password",
+                btnSubmit: "Accedi all'Account",
+                noAccount: "Non hai ancora un account?",
+                registerLink: "Registrati adesso"
+            },
+            en: {
+                brandSubtitle: "Connect with your friends, exchange messages and organize events freely.",
+                formTitle: "Welcome Back!",
+                formSubtitle: "Enter your credentials to access the community.",
+                email: "Email Address",
+                password: "Password",
+                btnSubmit: "Log In to Account",
+                noAccount: "Don't have an account yet?",
+                registerLink: "Sign up now"
+            },
+            es: {
+                brandSubtitle: "Conéctate con tus amigos, intercambia mensajes y organiza eventos libremente.",
+                formTitle: "¡Bienvenido de nuevo!",
+                formSubtitle: "Introduce tus credenciales para acceder a la comunidad.",
+                email: "Correo Electrónico",
+                password: "Contraseña",
+                btnSubmit: "Iniciar Sesión",
+                noAccount: "¿Aún no tienes una cuenta?",
+                registerLink: "Regístrate ahora"
+            },
+            sq: {
+                brandSubtitle: "Lidhu me miqtë tuaj, shkëmbe mesazhe dhe organizo evente lirisht.",
+                formTitle: "Mirëseerdhët përsëri!",
+                formSubtitle: "Vendosni kredencialet tuaja për të hyrë në komunitet.",
+                email: "Adresa Email",
+                password: "Fjalëkalimi",
+                btnSubmit: "Hyni në Llogari",
+                noAccount: "Nuk keni ende një llogari?",
+                registerLink: "Regjistrohuni tani"
             }
+        };
 
-            msg.style.color = '#1877f2';
-            msg.innerText = 'Verifica credenziali in corso...';
+        function applicaTraduzione(lingua) {
+            const testi = dizionario[lingua] || dizionario['it']; 
+            document.getElementById('lblBrandSubtitle').innerText = testi.brandSubtitle;
+            document.getElementById('lblFormTitle').innerText = testi.formTitle;
+            document.getElementById('lblFormSubtitle').innerText = testi.formSubtitle;
+            document.getElementById('lblEmail').innerText = testi.email;
+            document.getElementById('lblPassword').innerText = testi.password;
+            document.getElementById('btnSubmit').innerText = testi.btnSubmit;
+            document.getElementById('lblNoAccount').innerText = testi.noAccount;
+            document.getElementById('lblRegisterLink').innerText = testi.registerLink;
+        }
+
+        function cambiaLingua(lingua) {
+            localStorage.setItem('linguaPreferita', lingua);
+            applicaTraduzione(lingua);
+        }
+
+        // Carica lingua salvata
+        const linguaSalvata = localStorage.getItem('linguaPreferita') || 'it';
+        applicaTraduzione(linguaSalvata);
+
+        // 🔥 LOGICA DI INVIO LOGIN AL SERVER DI RENDER
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault(); // Ferma il refresh che ti cancellava l'email!
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const messageElement = document.getElementById('message');
+            
+            messageElement.style.color = '#1877f2';
+            messageElement.innerText = "Verifica credenziali in corso...";
 
             try {
                 const response = await fetch('/api/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: email, username: email, password: password })
+                    body: JSON.stringify({ email, password })
                 });
 
                 const data = await response.json();
 
                 if (response.ok) {
-                    msg.style.color = '#28a745';
-                    msg.innerText = 'Accesso eseguito! Entrando nella chat...';
-                    localStorage.setItem('utenteNexyTalk', JSON.stringify(data.user));
+                    messageElement.style.color = 'green';
+                    messageElement.innerText = "Accesso eseguito! Entro nel social...";
+                    
+                    localStorage.setItem('token', data.token);
                     setTimeout(() => {
                         window.location.href = 'home.html';
                     }, 1200);
                 } else {
-                    msg.style.color = '#dc3545';
-                    msg.innerText = data.error || 'Credenziali errate.';
-                }
-            } catch (error) {
-                msg.style.color = '#dc3545';
-                msg.innerText = 'Errore di connessione al database.';
-            }
-        }
-    </script>
-</body>
-</html>
+                    messageElement.style.color = 'red';
