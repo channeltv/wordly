@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexyTalk - Accedi</title>
+    <title>NexyTalk - Login</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { display: flex; height: 100vh; background-color: #f0f2f5; overflow: hidden; }
@@ -33,7 +33,7 @@
         .brand-title { font-size: 48px; font-weight: 800; letter-spacing: -1px; margin-bottom: 10px; z-index: 1; }
         .brand-subtitle { font-size: 18px; opacity: 0.9; text-align: center; max-width: 320px; line-height: 1.5; z-index: 1; }
 
-        /* Schermo Sdoppiato - Lato Destro (Modulo di Accesso) */
+        /* Schermo Sdoppiato - Lato Destro (Modulo di Login) */
         .split-right {
             width: 55%;
             background: #ffffff;
@@ -64,7 +64,7 @@
             box-shadow: 0 0 0 3px rgba(24, 119, 242, 0.15);
         }
 
-        /* Pulsante di Accesso */
+        /* Pulsante di Accesso Blu */
         button[type="submit"] {
             background-color: #1877f2;
             color: white;
@@ -94,8 +94,8 @@
 
     <!-- LATO SINISTRO: BRAND -->
     <div class="split-left">
-        <div class="brand-title">Wordly</div>
-        <div class="brand-subtitle" id="lblBrandSubtitle">Connettiti con i tuoi amici, scambia messaggi e organizes eventi in libertà.</div>
+        <div class="brand-title">NexyTalk</div>
+        <div class="brand-subtitle" id="lblBrandSubtitle">Connettiti con i tuoi amici, scambia messaggi e organizza eventi in libertà.</div>
     </div>
 
     <!-- LATO DESTRO: FORM -->
@@ -108,12 +108,12 @@
         <form id="loginForm">
             <div class="input-group">
                 <label for="email" id="lblEmail">Indirizzo Email</label>
-                <input type="email" id="email" required placeholder="esempio@email.com">
+                <input type="email" id="email" name="email" required placeholder="esempio@email.com">
             </div>
             
             <div class="input-group">
                 <label for="password" id="lblPassword">Password</label>
-                <input type="password" id="password" required placeholder="••••••••">
+                <input type="password" id="password" name="password" required placeholder="••••••••">
             </div>
             
             <button type="submit" id="btnSubmit">Accedi all'Account</button>
@@ -124,13 +124,13 @@
         <p class="footer-link"><span id="lblNoAccount">Non hai ancora un account?</span> <a href="index.html" id="lblRegisterLink">Registrati adesso</a></p>
     </div>
 
-    <!-- Selettore di Lingua Manuale con Albanese -->
+    <!-- Selettore di Lingua Manuale -->
     <div class="lang-selector">
         🌐 <span onclick="cambiaLingua('it')">Italiano</span> | <span onclick="cambiaLingua('en')">English</span> | <span onclick="cambiaLingua('es')">Español</span> | <span onclick="cambiaLingua('sq')">Shqip</span>
     </div>
 
     <script>
-        // 🌍 DIZIONARIO TRADUZIONI MULTILINGUA
+        // 🌍 DIZIONARIO TRADUZIONI LOGIN
         const dizionario = {
             it: {
                 brandSubtitle: "Connettiti con i tuoi amici, scambia messaggi e organizza eventi in libertà.",
@@ -150,7 +150,7 @@
                 password: "Password",
                 btnSubmit: "Log In to Account",
                 noAccount: "Don't have an account yet?",
-                registerLink: "Sign up now"
+                registerLink: "Register now"
             },
             es: {
                 brandSubtitle: "Conéctate con tus amigos, intercambia mensajes y organiza eventos libremente.",
@@ -174,8 +174,9 @@
             }
         };
 
-        function applicaTraduzione(lingua) {
-            const testi = dizionario[lingua] || dizionario['it']; 
+        function cambiaLingua(lingua) {
+            const testi = dizionario[lingua] || dizionario['it'];
+            
             document.getElementById('lblBrandSubtitle').innerText = testi.brandSubtitle;
             document.getElementById('lblFormTitle').innerText = testi.formTitle;
             document.getElementById('lblFormSubtitle').innerText = testi.formSubtitle;
@@ -186,42 +187,92 @@
             document.getElementById('lblRegisterLink').innerText = testi.registerLink;
         }
 
-        function cambiaLingua(lingua) {
-            localStorage.setItem('linguaPreferita', lingua);
-            applicaTraduzione(lingua);
-        }
-
-        // Carica lingua salvata
-        const linguaSalvata = localStorage.getItem('linguaPreferita') || 'it';
-        applicaTraduzione(linguaSalvata);
-
-        // 🔥 LOGICA DI INVIO LOGIN AL SERVER DI RENDER
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault(); // Ferma il refresh che ti cancellava l'email!
+        // 🔐 GESTIONE INVIO DATI LOGIN AL SERVER
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault(); // Blocca il ricaricamento della pagina
             
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const messageElement = document.getElementById('message');
+            const messageDiv = document.getElementById('message');
             
-            messageElement.style.color = '#1877f2';
-            messageElement.innerText = "Verifica credenziali in corso...";
+            messageDiv.style.color = '#1877f2';
+            messageDiv.innerText = 'Verifica in corso...';
 
             try {
-                const response = await fetch('/api/login', {
+                // Invia la richiesta POST alle API del server su Render
+                const response = await fetch('/api/auth/login', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
                     body: JSON.stringify({ email, password })
                 });
 
                 const data = await response.json();
 
                 if (response.ok) {
-                    messageElement.style.color = 'green';
-                    messageElement.innerText = "Accesso eseguito! Entro nel social...";
+                    messageDiv.style.color = 'green';
+                    messageDiv.innerText = 'Login effettuato! Reindirizzamento...';
                     
-                    localStorage.setItem('token', data.token);
+                    // Salva il token (se presente) e reindirizza alla dashboard
+                    if(data.token) {
+                        localStorage.setItem('token', data.token);
+                    }
                     setTimeout(() => {
-                        window.location.href = 'home.html';
-                    }, 1200);
+                        window.location.href = 'dashboard.html'; // Cambiala con la tua pagina principale post-login
+                    }, 1500);
                 } else {
-                    messageElement.style.color = 'red';
+                    messageDiv.style.color = 'red';
+            document.getElementById('lblNoAccount').innerText = testi.noAccount;
+            document.getElementById('lblRegisterLink').innerText = testi.registerLink;
+        }
+
+        // 🔐 GESTIONE INVIO DATI LOGIN AL SERVER
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault(); // Blocca il ricaricamento della pagina
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const messageDiv = document.getElementById('message');
+            
+            messageDiv.style.color = '#1877f2';
+            messageDiv.innerText = 'Verifica in corso...';
+
+            try {
+                // Invia la richiesta POST alle API del server su Render
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    messageDiv.style.color = 'green';
+                    messageDiv.innerText = 'Login effettuato! Reindirizzamento...';
+                    
+                    // Salva il token (se presente) e reindirizza alla dashboard
+                    if(data.token) {
+                        localStorage.setItem('token', data.token);
+                    }
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html'; // Cambiala con la tua pagina principale post-login
+                    }, 1500);
+                } else {
+                    messageDiv.style.color = 'red';
+                    messageDiv.innerText = data.message || 'Credenziali errate.';
+                }
+            } catch (error) {
+                console.error('Errore:', error);
+                messageDiv.style.color = 'red';
+                messageDiv.innerText = 'Errore di connessione con il server.';
+            }
+        });
+    </script>
+</body>
+</html>
+
+
