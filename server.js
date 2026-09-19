@@ -2,12 +2,21 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const nodemailer = require('nodemailer');
+const cors = require('cors'); // 🔓 IMPORTANTE: Abilita la comunicazione tra siti diversi
 const User = require('./models/User'); 
 const Post = require('./models/Post'); 
 const Message = require('./models/Message'); 
 const Event = require('./models/Event');
 
 const app = express();
+
+// 🔓 Configurazione CORS per accettare le richieste in sicurezza da NexyTalk
+app.use(cors({
+    origin: ['https://nexytalk.net', 'http://nexytalk.net'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(express.json()); 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname)); 
@@ -55,8 +64,8 @@ async function inviaEmailConferma(emailUtente, nomeUtente) {
     }
 }
 
-// Rotta di Login unica e semplificata (accetta sia Email che Username)
-app.post('/api/login', async (req, res) => {
+// 🔐 Rotta di Login (Sistemata per rispondere sia a /api/login che a /api/auth/login)
+const loginHandler = async (req, res) => {
   try {
     const { email, username, password } = req.body;
     const credenziale = email || username;
@@ -65,9 +74,8 @@ app.post('/api/login', async (req, res) => {
       return res.status(400).json({ error: 'Inserisci tutti i campi richiesti.' });
     }
 
-    // Cerca l'utente confrontando sia il campo email che username
     const user = await User.findOne({
-        $or: [{ email: credenziale }, { username: credenziale }]
+        \$or: [{ email: credenziale }, { username: credenziale }]
     });
 
     if (!user || user.password !== password) {
@@ -78,7 +86,10 @@ app.post('/api/login', async (req, res) => {
   } catch (error) { 
     res.status(500).json({ error: '❌ Errore del server durante il login.' }); 
   }
-});
+};
+
+app.post('/api/login', loginHandler);
+app.post('/api/auth/login', loginHandler); // Supporta anche la rotta cercata dal frontend html
 
 // Rotta di Registrazione con invio Email
 app.post('/api/register', async (req, res) => {
@@ -87,7 +98,6 @@ app.post('/api/register', async (req, res) => {
     const newUser = new User({ username, email, password });
     await newUser.save();
     
-    // Invia la mail in background
     await inviaEmailConferma(email, username);
     
     res.status(201).json({ message: '🎉 Utente registrato con successo!', user: newUser });
@@ -124,7 +134,7 @@ app.post('/api/messages', async (req, res) => {
 app.get('/api/messages/:user1/:user2', async (req, res) => {
     try {
         const history = await Message.find({
-            $or: [
+            \$or: [
                 { sender: req.params.user1, receiver: req.params.user2 },
                 { sender: req.params.user2, receiver: req.params.user1 }
             ]
