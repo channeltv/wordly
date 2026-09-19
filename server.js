@@ -1,4 +1,4 @@
-crequire('dotenv').config();
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const nodemailer = require('nodemailer');
@@ -9,7 +9,6 @@ const Event = require('./models/Event');
 
 const app = express();
 
-// 🔓 Permessi CORS nativi (Senza bisogno di pacchetti esterni)
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', 'https://nexytalk.net');
     res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE');
@@ -24,12 +23,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname)); 
 
-// Connessione protetta a MongoDB Atlas
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('🟢 Connesso con successo a MongoDB Atlas online!'))
   .catch(err => console.error('🔴 Errore di connessione a MongoDB:', err));
 
-// Configurazione Nodemailer per l'invio delle email
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -38,7 +35,6 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-// Funzione per inviare l'email di benvenuto NexyTalk
 async function inviaEmailConferma(emailUtente, nomeUtente) {
     const mailOptions = {
         from: '"NexyTalk" <Ustameta@gmail.com>',
@@ -67,8 +63,7 @@ async function inviaEmailConferma(emailUtente, nomeUtente) {
     }
 }
 
-// 🔐 Rotta di Login (Sostiene sia /api/login che /api/auth/login)
-const loginHandler = async (req, res) => {
+app.post('/api/login', async (req, res) => {
   try {
     const { email, username, password } = req.body;
     const credenziale = email || username;
@@ -89,27 +84,43 @@ const loginHandler = async (req, res) => {
   } catch (error) { 
     res.status(500).json({ error: '❌ Errore del server durante il login.' }); 
   }
-};
+});
 
-app.post('/api/login', loginHandler);
-app.post('/api/auth/login', loginHandler); 
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { email, username, password } = req.body;
+    const credenziale = email || username;
 
-// Rotta di Registrazione con invio Email
+    if (!credenziale || !password) {
+      return res.status(400).json({ error: 'Inserisci tutti i campi richiesti.' });
+    }
+
+    const user = await User.findOne({
+        \$or: [{ email: credenziale }, { username: credenziale }]
+    });
+
+    if (!user || user.password !== password) {
+      return res.status(400).json({ error: 'Nome utente, email o password errati.' });
+    }
+    
+    res.status(200).json({ message: 'Accesso eseguito!', user: { id: user._id, username: user.username, email: user.email } });
+  } catch (error) { 
+    res.status(500).json({ error: '❌ Errore del server durante il login.' }); 
+  }
+});
+
 app.post('/api/register', async (req, res) => {
   try {
     const { username, email, password } = req.body;
     const newUser = new User({ username, email, password });
     await newUser.save();
-    
     await inviaEmailConferma(email, username);
-    
     res.status(201).json({ message: '🎉 Utente registrato con successo!', user: newUser });
   } catch (error) { 
     res.status(500).json({ error: '❌ Errore durante la registrazione.' }); 
   }
 });
 
-// Rotte standard per utenti, post, messaggi ed eventi
 app.get('/api/users', async (req, res) => {
     try { res.status(200).json(await User.find({}, 'username email')); } catch (e) { res.status(500).json({ error: 'Errore' }); }
 });
@@ -158,7 +169,6 @@ app.get('/api/events', async (req, res) => {
     try { res.status(200).json(await Event.find().populate('creator', 'username').sort({ date: 1, time: 1 })); } catch (e) { res.status(500).json({ error: 'Errore' }); }
 });
 
-// Configurazione Server HTTP e Socket.io
 const http = require('http');
 const socketIo = require('socket.io');
 const server = http.createServer(app); 
@@ -167,7 +177,6 @@ const utentiOnline = new Map();
 
 io.on('connection', (socket) => {
   socket.on('utente_connesso', (userId) => { utentiOnline.set(userId, socket.id); });
-  socket.on('invia_messaggio', async (data) => {});
 });
 
 const PORT = process.env.PORT || 10000;
