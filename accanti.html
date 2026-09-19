@@ -54,27 +54,7 @@
         <div id="message"></div>
         <p class="footer-link"><span id="lblNoAccount">Non hai ancora un account?</span> <a href="index.html" id="lblRegisterLink">Registrati adesso</a></p>
     </div>
-    <div class="lang-selector">
-        🌐 <span onclick="cambiaLingua('it')">Italiano</span> | <span onclick="cambiaLingua('en')">English</span> | <span onclick="cambiaLingua('es')">Español</span> | <span onclick="cambiaLingua('sq')">Shqip</span>
-    </div>
     <script>
-        const dizionario = {
-            it: { brandSubtitle: "Connettiti con i tuoi amici, scambia messaggi e organizza eventi in libertà.", formTitle: "Bentornato!", formSubtitle: "Inserisci le tue credenziali per accedere alla community.", email: "Indirizzo Email", password: "Password", btnSubmit: "Accedi all'Account", noAccount: "Non hai ancora un account?", registerLink: "Registrati adesso" },
-            en: { brandSubtitle: "Connect with your friends, exchange messages and organize events freely.", formTitle: "Welcome Back!", formSubtitle: "Enter your credentials to access the community.", email: "Email Address", password: "Password", btnSubmit: "Log In to Account", noAccount: "Don't have an account yet?", registerLink: "Register now" },
-            es: { brandSubtitle: "Conéctate con tus amigos, intercambia mensajes y organiza eventos libremente.", formTitle: "¡Bienvenido de nuevo!", formSubtitle: "Introduce tus credenciales para acceder a la comunidad.", email: "Correo Electrónico", password: "Contraseña", btnSubmit: "Iniciar Sesión", noAccount: "¿Aún no tienes una cuenta?", registerLink: "Regístrate ahora" },
-            sq: { brandSubtitle: "Lidhu me miqtë tuaj, shkëmbe mesazhe dhe organizo evente lirisht.", formTitle: "Mirëseerdhët përsëri!", formSubtitle: "Vendosni kredencialet tuaja për të hyrë in komunitet.", email: "Adresa Email", password: "Fjalëkalimi", btnSubmit: "Hyni në Llogari", noAccount: "Nuk keni ende një llogari?", registerLink: "Regjistrohuni tani" }
-        };
-        function cambiaLingua(lingua) {
-            const testi = dizionario[lingua] || dizionario['it'];
-            document.getElementById('lblBrandSubtitle').innerText = testi.brandSubtitle;
-            document.getElementById('lblFormTitle').innerText = testi.formTitle;
-            document.getElementById('lblFormSubtitle').innerText = testi.formSubtitle;
-            document.getElementById('lblEmail').innerText = testi.email;
-            document.getElementById('lblPassword').innerText = testi.password;
-            document.getElementById('btnSubmit').innerText = testi.btnSubmit;
-            document.getElementById('lblNoAccount').innerText = testi.noAccount;
-            document.getElementById('lblRegisterLink').innerText = testi.registerLink;
-        }
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const email = document.getElementById('email').value;
@@ -82,13 +62,13 @@
             const messageDiv = document.getElementById('message');
             messageDiv.style.color = '#1877f2';
             messageDiv.innerText = 'Verifica in corso...';
-                    try {
-            const response = await fetch('https://onrender.com', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
-            const data = await response.json();
+            try {
+                const response = await fetch('https://onrender.com', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await response.json();
                 if (response.ok) {
                     messageDiv.style.color = 'green';
                     messageDiv.innerText = 'Login effettuato! Reindirizzamento...';
