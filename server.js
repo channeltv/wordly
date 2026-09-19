@@ -1,8 +1,7 @@
-require('dotenv').config();
+crequire('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const nodemailer = require('nodemailer');
-const cors = require('cors'); // 🔓 IMPORTANTE: Abilita la comunicazione tra siti diversi
 const User = require('./models/User'); 
 const Post = require('./models/Post'); 
 const Message = require('./models/Message'); 
@@ -10,12 +9,16 @@ const Event = require('./models/Event');
 
 const app = express();
 
-// 🔓 Configurazione CORS per accettare le richieste in sicurezza da NexyTalk
-app.use(cors({
-    origin: ['https://nexytalk.net', 'http://nexytalk.net'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-}));
+// 🔓 Permessi CORS nativi (Senza bisogno di pacchetti esterni)
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', 'https://nexytalk.net');
+    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    if (req.method === 'OPTIONS') {
+        return res.sendStatus(200);
+    }
+    next();
+});
 
 app.use(express.json()); 
 app.use(express.urlencoded({ extended: true }));
@@ -64,7 +67,7 @@ async function inviaEmailConferma(emailUtente, nomeUtente) {
     }
 }
 
-// 🔐 Rotta di Login (Sistemata per rispondere sia a /api/login che a /api/auth/login)
+// 🔐 Rotta di Login (Sostiene sia /api/login che /api/auth/login)
 const loginHandler = async (req, res) => {
   try {
     const { email, username, password } = req.body;
@@ -89,7 +92,7 @@ const loginHandler = async (req, res) => {
 };
 
 app.post('/api/login', loginHandler);
-app.post('/api/auth/login', loginHandler); // Supporta anche la rotta cercata dal frontend html
+app.post('/api/auth/login', loginHandler); 
 
 // Rotta di Registrazione con invio Email
 app.post('/api/register', async (req, res) => {
