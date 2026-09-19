@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexyTalk - Accedi</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { display: flex; height: 100vh; background-color: #f0f2f5; overflow: hidden; }
+        .split-left { width: 45%; background: linear-gradient(135deg, #1877f2 0%, #0056b3 100%); display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; padding: 40px; }
+        .brand-title { font-size: 48px; font-weight: 800; margin-bottom: 10px; }
+        .brand-subtitle { font-size: 18px; opacity: 0.9; text-align: center; max-width: 320px; }
+        .split-right { width: 55%; background: #ffffff; display: flex; flex-direction: column; justify-content: center; padding: 0 10%; }
+        .form-header { margin-bottom: 32px; }
+        .form-header h2 { font-size: 28px; color: #1c1e21; margin-bottom: 8px; font-weight: 700; }
+        .input-group { margin-bottom: 20px; display: flex; flex-direction: column; gap: 6px; }
+        .input-group label { font-size: 13px; font-weight: 600; color: #65676b; }
+        .input-group input { padding: 14px 16px; border: 1px solid #ccd0d5; border-radius: 8px; font-size: 15px; outline: none; }
+        button { background-color: #1877f2; color: white; border: none; padding: 14px; font-size: 16px; font-weight: 700; border-radius: 8px; cursor: pointer; margin-top: 10px; }
+        #message { margin-top: 15px; font-size: 14px; font-weight: 600; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="split-left">
+        <div class="brand-title">NexyTalk</div>
+        <div class="brand-subtitle">Connettiti con i tuoi amici, scambia messaggi e organizza eventi in libertà.</div>
+    </div>
+    <div class="split-right">
+        <div class="form-header">
+            <h2>Bentornato!</h2>
+        </div>
+        <form id="loginForm">
+            <div class="input-group">
+                <label>Indirizzo Email o Username</label>
+                <input type="text" id="credenziale" required placeholder="esempio@email.com">
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="password" required placeholder="••••••••">
+            </div>
+            <button type="submit">Accedi all'Account</button>
+        </form>
+        <div id="message"></div>
+    </div>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const credenziale = document.getElementById('credenziale').value;
+            const password = document.getElementById('password').value;
+            const messageDiv = document.getElementById('message');
+            
+            messageDiv.style.color = '#1877f2';
+            messageDiv.innerText = 'Verifica in corso...';
+
+            try {
+                const response = await fetch('https://onrender.com', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: credenziale, password: password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    messageDiv.style.color = 'green';
+                    messageDiv.innerText = 'Login effettuato!';
+                    if(data.user && data.user.id) {
+                        localStorage.setItem('userId', data.user.id);
+                    }
+                    setTimeout(() => { window.location.href = 'dashboard.html'; }, 1500);
+                } else {
+                    messageDiv.style.color = 'red';
+                    messageDiv.innerText = data.error || 'Credenziali errate.';
+                }
+            } catch (error) {
+                console.error('Errore:', error);
+                messageDiv.style.color = 'red';
+                messageDiv.innerText = 'Errore di connessione con il server.';
+            }
+        });
+    </script>
+</body>
+</html>
